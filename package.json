@@ -5,7 +5,7 @@
   "main": "dist/index.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/daryl-cecile/express-multi-view.git"
+    "url": "git://github.com/daryl-cecile/express-multi-view.git"
   },
   "scripts": {
     "preinstall": "npx npm-force-resolutions",
