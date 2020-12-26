@@ -1,10 +1,12 @@
 import { Request, Response, IRouter, Application } from "express-serve-static-core";
 
-type SubdomainConfig = {
-    [subdomain:string] : {
-        router?: IRouter,
-        viewsFolder: string|((subdomain:string)=>string)
-    }
+interface ISubdomainConfigOption {
+    router?: IRouter,
+    viewsFolder: string|((subdomain:string)=>string)
+}
+
+interface ISubdomainConfig {
+    [subdomain:string] : ISubdomainConfigOption
 };
 
 function generateViewCacheKey(viewsRoot:Array<string>|string, viewName:string){
@@ -112,7 +114,7 @@ function overrideResRender(res:Response, onBeforeRender, onAfterRender){
     }
 }
 
-function getMatchingConfig(req:Request, configs:SubdomainConfig){
+function getMatchingConfig(req:Request, configs:ISubdomainConfig){
     let matches = Object.keys(configs).map(subdomain => {
 
         let subdomainSplit = subdomain.split('.').reverse();
@@ -141,11 +143,17 @@ function getMatchingConfig(req:Request, configs:SubdomainConfig){
     };
 }
 
-export function withMultiView(app:Application, configs:SubdomainConfig):Application{
+let configsCollection:ISubdomainConfig = {};
+let isMountedToApp = false;
+
+export function withMultiView(app:Application, configs:ISubdomainConfig):Application{
+    configsCollection = {...configsCollection, ...configs};
+    if (isMountedToApp) return;
+    isMountedToApp = true;
 
     app.use(function(req, res, next){
         let oldViewPaths = app.get("views");
-        let match = getMatchingConfig(req, configs);
+        let match = getMatchingConfig(req, configsCollection);
         
         if (match.hasConfig){
             let path = typeof match.config.viewsFolder === "function" ? match.config.viewsFolder(match.subdomain) : match.config.viewsFolder;
@@ -167,8 +175,16 @@ export function withMultiView(app:Application, configs:SubdomainConfig):Applicat
     return app;
 }
 
+export function defineSubdomainView(app:Application, subdomain:string, config:ISubdomainConfigOption):Application{
+    let configs = {};
+    configs[subdomain] = config;
+    return withMultiView(app, configs);
+}
+
 module.exports = {
-    withMultiView
+    withMultiView,
+    defineSubdomainView
 };
 
 exports.withMultiView = withMultiView;
+exports.defineSubdomainView = defineSubdomainView;

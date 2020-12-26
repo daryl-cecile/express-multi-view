@@ -1,6 +1,6 @@
 {
   "name": "express-multiview",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "A subdomain and multi-view expressjs middleware",
   "main": "dist/index.js",
   "repository": {
