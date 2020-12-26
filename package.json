@@ -1,6 +1,6 @@
 {
   "name": "express-multiview",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "A subdomain and multi-view expressjs middleware",
   "main": "dist/index.js",
   "repository": {
@@ -8,6 +8,7 @@
     "url": "git://github.com/daryl-cecile/express-multi-view.git"
   },
   "scripts": {
+    "prepublishOnly": "npm run build",
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "parcel build src/*.ts --target nodejs --out-dir dist/"
   },
