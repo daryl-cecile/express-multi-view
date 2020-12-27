@@ -2,7 +2,7 @@ import { Request, Response, IRouter, Application } from "express-serve-static-co
 
 interface ISubdomainConfigOption {
     router?: IRouter,
-    viewsFolder: string|((subdomain:string)=>string)
+    viewsFolder?: string|((subdomain:string)=>string)
 }
 
 interface ISubdomainConfig {
@@ -146,10 +146,12 @@ function getMatchingConfig(req:Request, configs:ISubdomainConfig){
 let configsCollection:ISubdomainConfig = {};
 let isMountedToApp = false;
 
-export function withMultiView(app:Application, configs:ISubdomainConfig):Application{
+export function withMultiView(app:Application, configs:ISubdomainConfig, offsets:number=2):Application{
     configsCollection = {...configsCollection, ...configs};
     if (isMountedToApp) return;
     isMountedToApp = true;
+
+    app.set('subdomain offset', offsets);
 
     app.use(function(req, res, next){
         let oldViewPaths = app.get("views");
@@ -177,10 +179,10 @@ export function withMultiView(app:Application, configs:ISubdomainConfig):Applica
     return app;
 }
 
-export function defineSubdomainView(app:Application, subdomain:string, config:ISubdomainConfigOption):Application{
+export function defineSubdomainView(app:Application, subdomain:string, config:ISubdomainConfigOption, offsets:number=2):Application{
     let configs = {};
     configs[subdomain] = config;
-    return withMultiView(app, configs);
+    return withMultiView(app, configs, offsets);
 }
 
 module.exports = {
