@@ -157,13 +157,15 @@ export function withMultiView(app:Application, configs:ISubdomainConfig):Applica
         
         if (match.hasConfig){
             let path = typeof match.config.viewsFolder === "function" ? match.config.viewsFolder(match.subdomain) : match.config.viewsFolder;
-            overrideResRender(res, ()=>{
-                // change view
-                app.set("views", path);
-            }, ()=>{
-                // reset view
-                app.set("views", oldViewPaths);
-            });
+            if (path){
+                overrideResRender(res, ()=>{
+                    // change view
+                    app.set("views", path);
+                }, ()=>{
+                    // reset view
+                    app.set("views", oldViewPaths);
+                });
+            }
         }
 
         if (match.hasConfig && match.config.router){
